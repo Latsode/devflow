@@ -1,0 +1,56 @@
+{
+  "name": "devflow",
+  "version": "1.0.0",
+  "description": "Adaptive Claude Code workflow plugin. Classifies coding tasks into tiny/standard/deep/debug modes and routes each phase to the cheapest capable model.",
+  "author": "devflow contributors",
+  "license": "MIT",
+  "claudeCode": {
+    "minVersion": "1.0.0"
+  },
+  "components": {
+    "commands": [
+      "devflow",
+      "devflow-plan",
+      "devflow-execute",
+      "devflow-debug",
+      "devflow-review",
+      "devflow-finish"
+    ],
+    "agents": [
+      "devflow-planner",
+      "devflow-implementer",
+      "devflow-debugger",
+      "devflow-reviewer",
+      "devflow-tester"
+    ],
+    "skills": [
+      "devflow-adaptive-routing",
+      "devflow-discovery",
+      "devflow-writing-specs",
+      "devflow-writing-plans",
+      "devflow-executing-tasks",
+      "devflow-systematic-debugging",
+      "devflow-code-review",
+      "devflow-verification",
+      "devflow-finishing"
+    ],
+    "hooks": [
+      "session-start.sh"
+    ],
+    "templates": [
+      "spec-template.md",
+      "plan-template.md",
+      "review-template.md",
+      "handoff-template.md"
+    ]
+  },
+  "keywords": [
+    "claude-code",
+    "workflow",
+    "tdd",
+    "debugging",
+    "code-review",
+    "adaptive",
+    "model-routing"
+  ]
+}

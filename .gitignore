@@ -1,0 +1,32 @@
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Secrets / local credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+.npmrc
+.pypirc
+
+# Local install artifacts
+*.log
+*.bak
+*.tmp
+
+# Generated docs from real projects (consumers will have their own)
+docs/devflow/specs/
+docs/devflow/plans/
+docs/devflow/handoffs/
