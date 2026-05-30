@@ -13,6 +13,30 @@ Goal: ground the work in what already exists before changing anything.
 - Deep task: ≤ 20 file reads during discovery
 - Prefer Glob + Grep before Read. Don't Read a file you only need to confirm exists.
 
+## Graphify (optional — skips itself when absent)
+
+If the repo has a graphify graph — the `graphify` CLI is on PATH **and**
+`graphify-out/graph.json` exists — use it as a cheap first pass before reading
+files. It returns small slices instead of whole files.
+
+- `graphify query "<question>"` — map the neighborhood around a concept
+- `graphify explain "<symbol>"` — a node and its immediate neighbors
+- `graphify affected "<symbol>"` — reverse impact: what depends on X
+- `graphify path "<A>" "<B>"` — how two symbols connect
+
+Rules (all of them matter):
+- **Hints, not truth.** Verify anything load-bearing against the source. Edges
+  tagged `INFERRED`/`AMBIGUOUS`, fuzzy name matches, and "ambiguous match"
+  warnings are guesses.
+- **Fall back silently.** If a query is empty, errors, or ambiguous, just use
+  Glob/Grep/Read. Never block on graphify.
+- **Never `Read graph.json`** — the raw blob is a token sink. Use the verbs above.
+- **Don't auto-build.** If the CLI is present but `graphify-out/graph.json` is
+  missing or stale, emit one line — "graphify present but no graph; run
+  `graphify update .` to enable graph-assisted discovery" — then proceed
+  normally without it.
+- If graphify is unavailable, ignore this section entirely.
+
 ## Steps
 
 1. **Repo type** — read root: `package.json`, `pom.xml`, `build.gradle*`, `*.csproj`, `*.sln`, `pubspec.yaml`, `docker-compose*.yml`, `Makefile`, `pyproject.toml`. Note frameworks/languages present.

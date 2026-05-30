@@ -150,6 +150,7 @@ Never (in any mode, without explicit user request):
 - Progressive depth: light first, deeper only if risk demands
 - After editing a file, do NOT re-read it to verify — Edit tool errors on failure
 - After committing, emit only `{SHA, file count, test summary}` — no diff echo
+- If a graphify graph is present (`graphify` CLI + `graphify-out/graph.json`), prefer `graphify query/affected/path/explain` over broad Grep for structural navigation — treat results as hints, never read `graph.json` raw. Ignore if graphify is absent.
 - Subagent prompts: include file paths, not file contents
 - Prefer Edit (small diff) over Read + Write (full file)
 - Plan/spec: read once at session start, reference by task ID after

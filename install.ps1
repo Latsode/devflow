@@ -71,6 +71,13 @@ function Copy-Asset {
             Write-Host "  skip  ($Label) $($item.Name) - exists" -ForegroundColor Yellow
             continue
         }
+        # Directories: remove the existing destination first. Otherwise
+        # Copy-Item -Recurse copies the source dir INSIDE the existing target
+        # (skills/devflow-x/devflow-x/SKILL.md), nesting one level per install
+        # and leaving the active top-level SKILL.md stale. Mirrors install.sh.
+        if ($item.PSIsContainer -and (Test-Path $dest)) {
+            Remove-Item -Path $dest -Recurse -Force
+        }
         Copy-Item -Path $item.FullName -Destination $dest -Recurse -Force
         Write-Host "  copy  ($Label) $($item.Name)" -ForegroundColor Green
     }

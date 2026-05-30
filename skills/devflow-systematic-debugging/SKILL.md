@@ -26,6 +26,12 @@ description: Evidence-based debugging method. Use for any bug, failing test, reg
 - Recent commits touching the affected files (`git log -p -- <path>`)
 - Relevant logs at the failure point
 - The smallest input that triggers it
+- If a graphify graph is available (`graphify` CLI + `graphify-out/graph.json`):
+  `graphify affected "<symbol>"` to find impacted nodes and
+  `graphify path "<failing-symbol>" "<suspect>"` to trace the call chain without
+  reading every file. Results are **unverified hints** — confirm each hop in
+  source before trusting it. Fall back to `git log`/Grep on empty/ambiguous/error
+  results. Never read `graph.json` raw. Skip silently if graphify is absent.
 
 ### 3. Compare working vs broken
 - Most recent commit/branch/env where it works → diff

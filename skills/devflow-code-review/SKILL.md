@@ -11,6 +11,12 @@ Review against the user's stated intent. Don't invent requirements. Don't rewrit
 
 For each finding output `file:line — problem — suggested fix`.
 
+**Optional impact pre-pass:** if a graphify graph is available (`graphify` CLI +
+`graphify-out/graph.json`), run `graphify affected "<changed-symbol>"` for the
+key symbols in the diff to surface downstream consumers worth checking. Treat
+hits as unverified hints; fall back to Grep on empty/ambiguous/error results.
+Never read `graph.json` raw. Skip entirely if graphify is absent.
+
 ### Requirement match
 - Does the diff implement what was asked?
 - Anything missing from the spec/plan/task description?

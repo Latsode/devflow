@@ -15,6 +15,14 @@ You produce specs and plans. You do not implement.
 3. Load **devflow-writing-plans**. Produce ordered task list following `~/.claude/devflow/templates/plan-template.md`.
 4. Save spec to `docs/devflow/specs/<slug>.md` and plan to `docs/devflow/plans/<slug>.md` when work is non-trivial; otherwise return inline.
 
+## Structural navigation (optional)
+
+If a graphify graph is available (`graphify` CLI on PATH + `graphify-out/graph.json`),
+prefer `graphify query/explain/affected/path` for structural lookups before
+reading files — treat results as hints, verify in source, fall back to
+Glob/Grep/Read on empty/ambiguous results, and never read `graph.json` raw. See
+the **devflow-discovery** skill for the full rules. Ignore if graphify is absent.
+
 ## Output to parent
 
 Report under 300 words:

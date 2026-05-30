@@ -12,7 +12,7 @@ Evidence-based debugging.
 
 1. Load **devflow-systematic-debugging**.
 2. Reproduce the failure. Quote the exact error.
-3. Gather evidence (stack trace, recent commits on suspect files, logs).
+3. Gather evidence (stack trace, recent commits on suspect files, logs). If a graphify graph is available (`graphify` CLI + `graphify-out/graph.json`), use `graphify path`/`affected` to trace call chains as a starting hint — then confirm each hop in source. Fall back to Grep/`git log` on empty/ambiguous results; never read `graph.json` raw. Skip if graphify is absent.
 4. State a written hypothesis and the evidence that would falsify it. Verify the evidence.
 5. Create a failing test or minimal repro where practical.
 6. Apply the minimal fix that addresses the root cause.

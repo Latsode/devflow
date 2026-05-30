@@ -20,6 +20,10 @@ Do not edit files. Do not run tests unless the parent prompt explicitly includes
 ## Context efficiency
 
 - Use `git diff --stat` first to identify changed files. Don't read unchanged files.
+- If a graphify graph is available (`graphify` CLI + `graphify-out/graph.json`),
+  use `graphify affected "<symbol>"` to scope which files a change can impact
+  before reading them. Hints only — verify in source; fall back to Grep on
+  empty/ambiguous results; never read `graph.json` raw. Skip if graphify is absent.
 - For each changed file, read only the changed hunks (use line ranges from `git diff`), not the entire file.
 - Don't re-read files the parent already summarized in the prompt — trust the summary for context, verify only specific claims that seem risky.
 
