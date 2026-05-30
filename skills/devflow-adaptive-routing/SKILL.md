@@ -67,13 +67,13 @@ Once mode is chosen, assign model tier per phase using this matrix:
 
 | Mode | Phase | Model param | Why |
 |------|-------|-------------|-----|
-| tiny | full pass | `haiku` | Low-risk, single-file, no design decision |
+| tiny | full pass | `sonnet` | Low-risk, single-file, no design decision |
 | standard | discovery + design | `sonnet` | Read-heavy, pattern matching |
 | standard | implementation | `sonnet` | Routine coding, clear requirements |
 | standard | review + verify | `sonnet` | Checklist-based, read-only |
 | deep | discovery | `sonnet` | Read-heavy exploration |
 | deep | spec + plan | `opus` | Architecture decisions, high stakes |
-| deep | per-task impl | *(inherit)* | Complex coding, Opus 4.6 from session |
+| deep | per-task impl | *(inherit)* | Complex coding, Opus 4.8 from session |
 | deep | review + verify | `sonnet` | Checklist review |
 | debug (simple) | full flow | `sonnet` | Single file, clear error/trace |
 | debug (complex) | full flow | *(inherit)* | Multi-file, concurrency, intermittent |
@@ -82,7 +82,7 @@ Once mode is chosen, assign model tier per phase using this matrix:
 - **Simple**: single file suspect, clear error message, obvious stack trace, config typo
 - **Complex**: multi-file interaction, concurrency/race, data corruption, intermittent failure, no clear trace, requires hypothesis testing
 
-**Escalation**: If haiku subagent returns `ESCALATE`, re-classify as standard and re-dispatch on sonnet.
+**Escalation**: If tiny-mode subagent returns `ESCALATE`, re-classify as standard (adds review + verify).
 
 ## Output format
 
@@ -94,7 +94,7 @@ Models: <phase1>=<model>, <phase2>=<model>, ...
 Example outputs:
 ```
 Mode: tiny — typo fix, no behavior change
-Models: all=haiku
+Models: all=sonnet
 ```
 ```
 Mode: standard — new endpoint, clear requirements

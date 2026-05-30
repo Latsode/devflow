@@ -104,11 +104,14 @@ if ($InstallHook) {
         $settings.hooks | Add-Member -NotePropertyName SessionStart -NotePropertyValue @()
     }
 
+    # Windows-native command — no bash dependency (session-start.sh needs a
+    # working bash, which bare Windows lacks). Absolute path, like statusLine.
+    $hookScript = Join-Path $target 'devflow\hooks\session-start.ps1'
     $hookEntry = [pscustomobject]@{
         matcher = 'startup'
         hooks   = @([pscustomobject]@{
             type    = 'command'
-            command = 'bash ~/.claude/devflow/hooks/session-start.sh'
+            command = "powershell -NoProfile -File `"$hookScript`""
         })
     }
 

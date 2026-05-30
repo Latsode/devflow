@@ -2,7 +2,7 @@
 
 > Adaptive Claude Code workflow plugin. Lean for tiny work, strict for risky work, and routes every phase to the cheapest model that can handle it.
 
-devflow turns any coding request into the right depth of workflow. The classifier picks a mode (`tiny` / `standard` / `deep` / `debug`), then dispatches each phase to a subagent on a task-appropriate model (Haiku, Sonnet, or Opus). The main session stays a lightweight orchestrator — no accumulated context, no token bloat.
+devflow turns any coding request into the right depth of workflow. The classifier picks a mode (`tiny` / `standard` / `deep` / `debug`), then dispatches each phase to a subagent on a task-appropriate model (Sonnet or Opus). The main session stays a lightweight orchestrator — no accumulated context, no token bloat.
 
 ---
 
@@ -46,7 +46,7 @@ devflow keeps the same disciplined staging for risky work, but **opts out of cer
 | Concern | devflow approach |
 |---|---|
 | Mode selection | One-line classifier picks `tiny`/`standard`/`deep`/`debug` first. Most tasks skip spec/plan files entirely. |
-| Model cost | Each phase dispatches to the cheapest capable model — Haiku for tiny, Sonnet for routine work, Opus only where architecture decisions live. |
+| Model cost | Each phase dispatches to the cheapest capable model — Sonnet for tiny + routine work, Opus only where architecture decisions live. |
 | Context | Subagents run in isolation — the orchestrator never accumulates implementation noise. |
 | Skills size | Each skill is ~1 screen, not a multi-page playbook. Loaded only when relevant. |
 | Verification | A **gate**, not a suggestion. "should work" / "probably fixed" / "looks good" are explicitly forbidden — quoted command output is the only proof. |
@@ -198,7 +198,7 @@ You can always override the auto-classifier by calling the specific command dire
 
 | Mode | When the router picks it | What happens |
 |---|---|---|
-| **tiny** | One-sentence change, no behavior risk. Typos, log copy, format-only edits, single-line config, SQL formatting, adding a missing import — even in sensitive files, as long as runtime behavior can't change. | Single Haiku implementer subagent. Read → edit → minimum verify (test for changed file OR lint OR typecheck OR build) → one-line summary. No spec, no plan, no review pass. |
+| **tiny** | One-sentence change, no behavior risk. Typos, log copy, format-only edits, single-line config, SQL formatting, adding a missing import — even in sensitive files, as long as runtime behavior can't change. | Single Sonnet implementer subagent. Read → edit → minimum verify (test for changed file OR lint OR typecheck OR build) → one-line summary. No spec, no plan, no review pass. |
 | **standard** | Multi-file but architecture clear. Behavior changes. Tests required. No architectural decision pending. | Three phases: Sonnet planner → Sonnet implementer → Sonnet reviewer-with-verify. Inline design note (≤20 lines), inline task checklist, full test + lint + typecheck at the end. Plan saved to file only if >5 tasks. |
 | **deep** | Touches architecture, data model, schema migration, auth/security/payments/PII, public API contract, multiple modules, unclear requirements, or multi-day work. | Sonnet discovery → **Opus** spec + plan → presented to user → user runs `/devflow-execute` separately → Sonnet implementer (one batch per task group) → Sonnet review + verify → handoff file. |
 | **debug** | User describes a problem that already exists: quoted error, stack trace, "X is broken", "test failing", "crash", "wrong output". | Strict 8-step systematic debugging on Sonnet (simple) or inherit-Opus (complex). No fix before evidence. Max 2 autonomous attempts per error before stopping for user direction. |
@@ -226,7 +226,7 @@ devflow uses a **hub-and-spoke** topology to keep the orchestrator small and let
 
 ```
                 ┌─────────────────────────────────────┐
-                │   Main session  —  Opus 4.7         │
+                │   Main session  —  Opus 4.8         │
                 │   • classifies task                 │
                 │   • talks to user                   │
                 │   • dispatches subagents            │
@@ -237,8 +237,8 @@ devflow uses a **hub-and-spoke** topology to keep the orchestrator small and let
        ▼           ▼               ▼               ▼           ▼
  ┌──────────┐ ┌──────────┐  ┌──────────────┐ ┌──────────┐ ┌──────────┐
  │ planner  │ │implementer│ │   debugger   │ │ reviewer │ │  tester  │
- │ (sonnet/ │ │(haiku/    │  │ (sonnet/    │ │ (sonnet) │ │ (sonnet) │
- │  opus)   │ │ sonnet)   │  │  inherit)   │ │          │ │          │
+ │ (sonnet/ │ │ (sonnet)  │  │ (sonnet/    │ │ (sonnet) │ │ (sonnet) │
+ │  opus)   │ │           │  │  inherit)   │ │          │ │          │
  └──────────┘ └──────────┘  └──────────────┘ └──────────┘ └──────────┘
 ```
 
@@ -253,20 +253,20 @@ Why this matters: a single 200-line `git diff` echoed back into the orchestrator
 
 | Mode | Phase | Model param | Resolves to | Why |
 |---|---|---|---|---|
-| tiny | full pass | `haiku` | Haiku 4.5 | Low-risk, single-file, no design decision. |
+| tiny | full pass | `sonnet` | Sonnet 4.6 | Low-risk, single-file, no design decision. |
 | standard | discovery + design | `sonnet` | Sonnet 4.6 | Read-heavy, pattern matching. |
 | standard | implementation | `sonnet` | Sonnet 4.6 | Routine coding, clear requirements. |
 | standard | review + verify | `sonnet` | Sonnet 4.6 | Checklist-based, read-only. |
 | deep | discovery | `sonnet` | Sonnet 4.6 | Read-heavy exploration. |
-| deep | spec + plan | `opus` | Opus 4.7 | Architecture decisions, high stakes. |
-| deep | per-task impl | *(inherit)* | Opus 4.6 (session default) | Complex coding paths. |
+| deep | spec + plan | `opus` | Opus 4.8 | Architecture decisions, high stakes. |
+| deep | per-task impl | *(inherit)* | Opus 4.8 (session default) | Complex coding paths. |
 | deep | review + verify | `sonnet` | Sonnet 4.6 | Checklist review. |
 | debug — simple | full flow | `sonnet` | Sonnet 4.6 | Single-file, clear trace. |
-| debug — complex | full flow | *(inherit)* | Opus 4.6 (session default) | Multi-file, concurrency, intermittent. |
+| debug — complex | full flow | *(inherit)* | Opus 4.8 (session default) | Multi-file, concurrency, intermittent. |
 
 ### Escalation
 
-- Haiku subagent returns `ESCALATE: <reason>` → re-classify as standard, re-dispatch on Sonnet.
+- Tiny-mode subagent returns `ESCALATE: <reason>` → re-classify as standard, adding review + verify phases.
 - Debugger returns `ESCALATE_TO_DEEP: <reason>` → dispatch planner on Opus for spec/plan.
 - Any subagent returns blockers → orchestrator presents to user, gets direction, re-dispatches with added context.
 
@@ -396,7 +396,7 @@ Expected output:
 
 ```
 Mode: tiny — one file, formatting only, no behavior change.
-Models: all=haiku
+Models: all=sonnet
 
 Read OrderRepository.java:42-58. Rewrite query block. Run:
 $ mvn -q -pl repo test -Dtest=OrderRepositoryTest
@@ -638,9 +638,9 @@ After install, these are split across two trees in your Claude Code config:
 ## Compatibility & requirements
 
 - **Claude Code** — v1.0.0 or newer (any version that supports custom slash commands, subagents under `~/.claude/agents/`, and skills under `~/.claude/skills/`).
-- **Operating systems** — Windows, macOS, Linux, WSL. The optional SessionStart hook uses `bash`; on Windows install Git Bash or WSL if you want it, otherwise skip `-InstallHook`.
+- **Operating systems** — Windows, macOS, Linux, WSL. The optional SessionStart hook is native per installer: `install.ps1 -InstallHook` wires `session-start.ps1` (PowerShell, no bash needed); the `.sh` installer wires `session-start.sh` (bash).
 - **Shell** — bash for the `.sh` installer; PowerShell 5.1+ for `install.ps1`. No external dependencies required for the basic install; `jq` is optional for the bash installer's `--install-hook` mode.
-- **Models** — works with whatever models your Claude Code config is wired for. The matrix above assumes Haiku 4.5, Sonnet 4.6, Opus 4.6, and Opus 4.7 are available; if some are missing, devflow still works — those phases just run on the next-best model the session has access to.
+- **Models** — works with whatever models your Claude Code config is wired for. The matrix above assumes Sonnet 4.6 and Opus 4.8 are available; if some are missing, devflow still works — those phases just run on the next-best model the session has access to.
 
 ---
 

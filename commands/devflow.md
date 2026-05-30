@@ -30,7 +30,7 @@ Then assign model tiers per phase using this matrix:
 
 | Mode | Phase | Model |
 |------|-------|-------|
-| tiny | all | `haiku` |
+| tiny | all | `sonnet` |
 | standard | discovery + design | `sonnet` |
 | standard | implementation | `sonnet` |
 | standard | review + verify | `sonnet` |
@@ -39,7 +39,7 @@ Then assign model tiers per phase using this matrix:
 | deep | implementation | `sonnet` |
 | deep | review + verify | `sonnet` |
 | debug (simple) | all | `sonnet` |
-| debug (complex) | all | *(inherit — Opus 4.6)* |
+| debug (complex) | all | *(inherit — Opus 4.8)* |
 
 Debug complexity: **simple** = single file, clear error, obvious trace. **Complex** = multi-file, concurrency, intermittent, no clear trace.
 
@@ -66,7 +66,7 @@ Every subagent prompt MUST include this safety block:
 
 Dispatch one agent call:
 ```
-Agent(subagent_type="devflow-implementer", model="haiku")
+Agent(subagent_type="devflow-implementer", model="sonnet")
 ```
 Prompt must include: task description, target file(s), instruction to understand → edit → run minimum verify (test for changed file OR lint/typecheck/build) → return 1-line summary.
 
@@ -118,7 +118,7 @@ Prompt: Include Phase A discovery output. "Load devflow-writing-specs. Write spe
 
 Classify bug complexity inline:
 - **Simple** (single file, clear error, obvious stack trace): `model="sonnet"`
-- **Complex** (multi-file, concurrency, intermittent, no clear trace): no model param (inherits Opus 4.6)
+- **Complex** (multi-file, concurrency, intermittent, no clear trace): no model param (inherits Opus 4.8)
 
 ```
 Agent(subagent_type="devflow-debugger", model=<per above>)

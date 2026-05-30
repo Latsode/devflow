@@ -95,7 +95,7 @@ Ties break toward the safer mode (standard > tiny, deep > standard).
 
 devflow uses a **hub-and-spoke** architecture for token efficiency:
 
-**Hub** = Main session (Opus 4.6) — lightweight orchestrator. Classifies tasks, interacts with user, dispatches work, collects results.
+**Hub** = Main session (Opus 4.8) — lightweight orchestrator. Classifies tasks, interacts with user, dispatches work, collects results.
 
 **Spokes** = Subagents with task-appropriate models. Start fresh (no accumulated context), use the cheapest model that can handle the phase.
 
@@ -103,29 +103,28 @@ devflow uses a **hub-and-spoke** architecture for token efficiency:
 
 | Tier | Agent `model` param | Resolves to | Use for |
 |------|-------------------|-------------|---------|
-| Hardest | `"opus"` | Opus 4.7 | Deep specs, architecture plans |
-| Complex | *(no param — inherit)* | Opus 4.6 | Deep-mode implementation, complex debug |
-| Medium | `"sonnet"` | Sonnet 4.6 | Discovery, reviews, standard impl, verification |
-| Trivial | `"haiku"` | Haiku 4.5 | Tiny mode tasks |
+| Hardest | `"opus"` | Opus 4.8 | Deep specs, architecture plans |
+| Complex | *(no param — inherit)* | Opus 4.8 | Deep-mode implementation, complex debug |
+| Medium | `"sonnet"` | Sonnet 4.6 | Tiny mode, discovery, reviews, standard impl, verification |
 
 ### Routing matrix
 
 | Mode | Phase | Model | Agent |
 |------|-------|-------|-------|
-| tiny | all | haiku | devflow-implementer |
+| tiny | all | sonnet | devflow-implementer |
 | standard | discovery | sonnet | devflow-planner |
 | standard | implementation | sonnet | devflow-implementer |
 | standard | review + verify | sonnet | devflow-reviewer |
 | deep | discovery | sonnet | devflow-planner |
 | deep | spec + plan | opus | devflow-planner |
-| deep | implementation | inherit (4.6) | devflow-implementer |
+| deep | implementation | inherit (4.8) | devflow-implementer |
 | deep | review + verify | sonnet | devflow-reviewer |
 | debug (simple) | all | sonnet | devflow-debugger |
-| debug (complex) | all | inherit (4.6) | devflow-debugger |
+| debug (complex) | all | inherit (4.8) | devflow-debugger |
 
 ### Escalation
 
-- Haiku subagent returns `ESCALATE: <reason>` → re-classify as standard, re-dispatch on sonnet
+- Tiny-mode subagent returns `ESCALATE: <reason>` → re-classify as standard (adds review + verify)
 - Debugger returns `ESCALATE_TO_DEEP: <reason>` → dispatch planner on opus for spec/plan
 - Any subagent returns blockers → orchestrator presents to user, gets direction, re-dispatches
 

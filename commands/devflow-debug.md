@@ -22,7 +22,7 @@ Evaluate the problem description:
 Agent(subagent_type="devflow-debugger", model="sonnet")
 
 # Complex bug:
-Agent(subagent_type="devflow-debugger")  # inherits Opus 4.6
+Agent(subagent_type="devflow-debugger")  # inherits Opus 4.8
 ```
 
 Prompt: "Load devflow-systematic-debugging. Hard rules: no fix before evidence, no random patches, no multi-variable changes without justification.
